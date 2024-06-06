@@ -491,10 +491,13 @@ struct BioIKKinematicsPlugin : kinematics::KinematicsBase {
         Eigen::Isometry3d p, r;
         tf::poseMsgToEigen(ik_poses[i], p);
         if (context_state) {
-          r = context_state->getGlobalLinkTransform(getBaseFrame());
+          moveit::core::RobotState updated_state(*context_state);
+          updated_state.update();
+          r = updated_state.getGlobalLinkTransform(getBaseFrame());
         } else {
           if (i == 0)
             temp_state->setToDefaultValues();
+          temp_state->update();
           r = temp_state->getGlobalLinkTransform(getBaseFrame());
         }
         tipFrames.emplace_back(r * p);
